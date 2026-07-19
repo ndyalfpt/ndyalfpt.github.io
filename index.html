@@ -336,6 +336,16 @@
 
   .reveal{ opacity:0; transform: translateY(14px); transition: opacity .5s ease, transform .5s ease; }
   .reveal.in{ opacity:1; transform:none; }
+  .reveal-word {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.reveal.in .reveal-word {
+  opacity: 1;
+  transform: none;
+}
   .icon-btn {
   display: inline-flex;
   align-items: center;
@@ -601,6 +611,32 @@
 
 <script>
   document.getElementById('year').textContent = new Date().getFullYear();
+  document.querySelectorAll('.reveal').forEach(el => {
+  const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+  const textNodes = [];
+  let node;
+  while (node = walker.nextNode()) {
+    if (node.textContent.trim()) textNodes.push(node);
+  }
+  let wordIndex = 0;
+  textNodes.forEach(textNode => {
+    const words = textNode.textContent.split(/(\s+)/);
+    const frag = document.createDocumentFragment();
+    words.forEach(word => {
+      if (word.trim()) {
+        const span = document.createElement('span');
+        span.className = 'reveal-word';
+        span.textContent = word;
+        span.style.transitionDelay = `${wordIndex * 0.03}s`;
+        wordIndex++;
+        frag.appendChild(span);
+      } else {
+        frag.appendChild(document.createTextNode(word));
+      }
+    });
+    textNode.parentNode.replaceChild(frag, textNode);
+  });
+});
 
   const navToggle = document.getElementById('navToggle');
   const navLinks = document.getElementById('navLinks');
